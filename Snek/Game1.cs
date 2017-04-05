@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Snek.Systems;
+using System.Collections.Generic;
 
 namespace Snek
 {
@@ -11,11 +13,14 @@ namespace Snek
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        
+        List<Systems.System> systems; //SystemsManager class with Update/Draw groupings and parallel order groupings
+        Entity entity = new Entity(new System.Guid());
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            systems = new List<Systems.System>();
         }
 
         /// <summary>
@@ -27,6 +32,7 @@ namespace Snek
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            systems.Add(new DrawSystem());
 
             base.Initialize();
         }
@@ -41,6 +47,7 @@ namespace Snek
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+            entity.AddComponent(new Components.DrawComponent(spriteBatch));
         }
 
         /// <summary>
@@ -63,6 +70,13 @@ namespace Snek
                 Exit();
 
             // TODO: Add your update logic here
+            foreach (Systems.System system in systems)
+            {
+                if (system.UseUpdateInterval)
+                {
+                    system.Update(gameTime.ElapsedGameTime.Ticks);
+                }
+            }
 
             base.Update(gameTime);
         }
@@ -75,7 +89,15 @@ namespace Snek
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
+
             // TODO: Add your drawing code here
+            foreach(Systems.System system in systems)
+            {
+                if (!system.UseUpdateInterval)
+                {
+                    system.Update(gameTime.ElapsedGameTime.Ticks);
+                }
+            }
 
             base.Draw(gameTime);
         }
