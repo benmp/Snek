@@ -3,6 +3,7 @@ using Artemis;
 using Artemis.Attributes;
 using Artemis.Manager;
 using Artemis.System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -15,9 +16,6 @@ namespace Snek.Systems
     {
         /// <summary>The content manager.</summary>
         private ContentManager contentManager;
-
-        /// <summary>The spatial name.</summary>
-        private string spatialName;
 
         /// <summary>The sprite batch.</summary>
         private SpriteBatch spriteBatch;
@@ -33,7 +31,7 @@ namespace Snek.Systems
         /// <param name="entity">The entity.</param>
         public override void Process(Entity entity, Texture2DComponent texture2DComponent, Vector2Component vector2Component)
         {
-            spriteBatch.Draw(texture2DComponent.Texture2D, vector2Component.Vector2);
+            spriteBatch.Draw(texture2DComponent.Texture2D, vector2Component.Vector2, Color.White);
         }
     }
 }

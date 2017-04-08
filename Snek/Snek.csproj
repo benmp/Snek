@@ -42,11 +42,16 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Components\KeyboardInputComponent.cs" />
+    <Compile Include="Components\VelocityComponent.cs" />
     <Compile Include="Components\Vector2Component.cs" />
     <Compile Include="Components\Texture2DComponent.cs" />
     <Compile Include="SnekGame.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Systems\KeyboardInputSystem.cs" />
+    <Compile Include="Systems\KeyboardInputVelocitySystem.cs" />
+    <Compile Include="Systems\MovementSystem.cs" />
     <Compile Include="Systems\DrawSystem.cs" />
   </ItemGroup>
   <ItemGroup>

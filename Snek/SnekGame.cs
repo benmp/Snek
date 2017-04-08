@@ -1,14 +1,11 @@
 ﻿
-using System;
-
 using Artemis;
 using Artemis.System;
-
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Snek.Components;
-using Artemis.Utils;
+using System;
 
 namespace Snek
 {
@@ -16,10 +13,13 @@ namespace Snek
     {
         private static readonly TimeSpan OneSecond = TimeSpan.FromSeconds(1);
         private readonly GraphicsDeviceManager graphics;
-        private TimeSpan elapsedTime;
+        private TimeSpan drawElapsedTime;
+        private TimeSpan updateElapsedTime;
         private SpriteFont font;
         private int frameCounter;
         private int frameRate;
+        private int updateCounter;
+        private int updateRate;
         private SpriteBatch spriteBatch;
         private EntityWorld entityWorld;
 
@@ -33,7 +33,8 @@ namespace Snek
 
         public SnekGame()
         {
-            this.elapsedTime = TimeSpan.Zero;
+            this.drawElapsedTime = TimeSpan.Zero;
+            this.updateElapsedTime = TimeSpan.Zero;
 
             this.graphics = new GraphicsDeviceManager(this)
             {
@@ -110,15 +111,24 @@ namespace Snek
                     this.Exit();
                 }
 
-                this.entityWorld.Update();
+                this.entityWorld.Update(interval);
                 accumulator -= interval;
+
+                ++this.updateCounter;
+                this.updateElapsedTime += TimeSpan.FromTicks(interval);
+                if (this.updateElapsedTime > OneSecond)
+                {
+                    this.updateElapsedTime -= OneSecond;
+                    this.updateRate = this.updateCounter;
+                    this.updateCounter = 0;
+                }
             }
 
             ++this.frameCounter;
-            this.elapsedTime += TimeSpan.FromTicks(deltaTime);
-            if (this.elapsedTime > OneSecond)
+            this.drawElapsedTime += TimeSpan.FromTicks(deltaTime);
+            if (this.drawElapsedTime > OneSecond)
             {
-                this.elapsedTime -= OneSecond;
+                this.drawElapsedTime -= OneSecond;
                 this.frameRate = this.frameCounter;
                 this.frameCounter = 0;
             }
@@ -131,6 +141,7 @@ namespace Snek
         protected override void Draw(GameTime gameTime)
         {
             string fps = string.Format("fps: {0}", this.frameRate);
+            string ups = string.Format("ups: {0}", this.updateRate);
 #if DEBUG
             string entityCount = string.Format("Active entities: {0}", this.entityWorld.EntityManager.ActiveEntities.Count);
             //string removedEntityCount = string.Format("Removed entities: {0}", this.entityWorld.EntityManager.TotalRemoved);
@@ -141,6 +152,7 @@ namespace Snek
             this.spriteBatch.Begin();
             this.entityWorld.Draw();
 #if DEBUG
+            this.spriteBatch.DrawString(this.font, ups, new Vector2(32, 16), Color.Yellow);
             this.spriteBatch.DrawString(this.font, fps, new Vector2(32, 32), Color.Yellow);
             this.spriteBatch.DrawString(this.font, entityCount, new Vector2(32, 62), Color.Yellow);
             //this.spriteBatch.DrawString(this.font, removedEntityCount, new Vector2(32, 92), Color.Yellow);
@@ -171,9 +183,13 @@ namespace Snek
 
             entity.AddComponentFromPool<Texture2DComponent>();
             entity.AddComponentFromPool<Vector2Component>();
+            entity.AddComponentFromPool<VelocityComponent>();
+            entity.AddComponentFromPool<KeyboardInputComponent>();
 
             entity.GetComponent<Texture2DComponent>().Init(Content, "Images/whitesquare");
             entity.GetComponent<Vector2Component>().Init(10, 10);
+            entity.GetComponent<VelocityComponent>().Init(16f, 0);
+            entity.GetComponent<KeyboardInputComponent>().Init(new KeyboardState(), new KeyboardState());
             entity.Tag = "SNEKPCHEAD";
         }
     }
