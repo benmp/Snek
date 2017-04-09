@@ -10,27 +10,39 @@ using Snek.Components;
 namespace Snek.Systems
 {
     [ArtemisEntitySystem(GameLoopType = GameLoopType.Update, Layer = 1)]
-    class KeyboardInputVelocitySystem : EntityComponentProcessingSystem<KeyboardInputComponent, VelocityComponent>
+    class KeyboardInputVelocitySystem : EntityComponentProcessingSystem<KeyboardInputComponent, VelocityComponent, SnakeHeadComponent>
     {
         /// <summary>Processes the specified entity.</summary>
         /// <param name="entity">The entity.</param>
-        public override void Process(Entity entity, KeyboardInputComponent keyboardInputComponent, VelocityComponent velocityComponent)
+        public override void Process(Entity entity, KeyboardInputComponent keyboardInputComponent, VelocityComponent velocityComponent, SnakeHeadComponent snakeHeadComponent)
         {
             if (keyboardInputComponent.NewKeyboardState.IsKeyDown(Keys.Right))
             {
-                velocityComponent.Angle = 0f;
+                if (velocityComponent.Next.Angle != 180f)
+                {
+                    velocityComponent.Next.Angle = 0f;
+                }
             }
             else if (keyboardInputComponent.NewKeyboardState.IsKeyDown(Keys.Up))
             {
-                velocityComponent.Angle = 270f;
+                if (velocityComponent.Next.Angle != 90f)
+                {
+                    velocityComponent.Next.Angle = 270f;
+                }
             }
             else if (keyboardInputComponent.NewKeyboardState.IsKeyDown(Keys.Left))
             {
-                velocityComponent.Angle = 180f;
+                if (velocityComponent.Next.Angle != 0f)
+                {
+                    velocityComponent.Next.Angle = 180f;
+                }
             }
             else if (keyboardInputComponent.NewKeyboardState.IsKeyDown(Keys.Down))
             {
-                velocityComponent.Angle = 90f;
+                if (velocityComponent.Next.Angle != 270f)
+                {
+                    velocityComponent.Next.Angle = 90f;
+                }
             }
         }
     }

@@ -4,19 +4,15 @@ using Artemis.Attributes;
 using Artemis.Manager;
 using Artemis.System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 using Snek.Components;
 
 namespace Snek.Systems
 {
-    [ArtemisEntitySystem(GameLoopType = GameLoopType.Draw, Layer = 0)]
-    class DrawSystem : EntityComponentProcessingSystem<Texture2DComponent, Vector2Component>
+    [ArtemisEntitySystem(GameLoopType = GameLoopType.Draw, Layer = 1)]
+    class SnakeBodyDrawSystem : EntityComponentProcessingSystem<Texture2DComponent, SnakeBodyComponent>
     {
-        /// <summary>The content manager.</summary>
-        private ContentManager contentManager;
-
         /// <summary>The sprite batch.</summary>
         private SpriteBatch spriteBatch;
 
@@ -24,14 +20,13 @@ namespace Snek.Systems
         public override void LoadContent()
         {
             this.spriteBatch = BlackBoard.GetEntry<SpriteBatch>("SpriteBatch");
-            this.contentManager = BlackBoard.GetEntry<ContentManager>("ContentManager");
         }
 
         /// <summary>Processes the specified entity.</summary>
         /// <param name="entity">The entity.</param>
-        public override void Process(Entity entity, Texture2DComponent texture2DComponent, Vector2Component vector2Component)
+        public override void Process(Entity entity, Texture2DComponent texture2DComponent, SnakeBodyComponent snakeBodyComponent)
         {
-            spriteBatch.Draw(texture2DComponent.Texture2D, vector2Component.Vector2, Color.White);
+            spriteBatch.Draw(texture2DComponent.Texture2D, snakeBodyComponent.Next, Color.White);
         }
     }
 }

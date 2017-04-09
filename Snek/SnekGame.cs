@@ -22,6 +22,7 @@ namespace Snek
         private int updateRate;
         private SpriteBatch spriteBatch;
         private EntityWorld entityWorld;
+        private Random random;
 
         DateTime currentTime;
         DateTime newTime;
@@ -53,6 +54,10 @@ namespace Snek
             this.IsFixedTimeStep = false; //this wont work when vsync is ON
             this.Content.RootDirectory = "Content";
 
+            this.IsMouseVisible = true;
+
+            this.random = new Random();
+
             currentTime = DateTime.Now;
             newTime = currentTime;
             accumulator = 0;
@@ -75,6 +80,7 @@ namespace Snek
             EntitySystem.BlackBoard.SetEntry("SpriteBatch", this.spriteBatch);
             EntitySystem.BlackBoard.SetEntry("SpriteFont", this.font);
             EntitySystem.BlackBoard.SetEntry("EnemyInterval", 500);
+            EntitySystem.BlackBoard.SetEntry("Random", this.random);
 
 #if XBOX
             this.entityWorld.InitializeAll( System.Reflection.Assembly.GetExecutingAssembly());
@@ -82,7 +88,7 @@ namespace Snek
             this.entityWorld.InitializeAll(true);
 #endif
 
-            this.InitializePlayerShip();
+            this.InitializePlayer();
             //this.InitializeEnemyShips();
 
             base.Initialize();
@@ -161,35 +167,25 @@ namespace Snek
             this.spriteBatch.End();
         }
 
-        /// <summary>The initialize enemy ships.</summary>
-        //private void InitializeEnemyShips()
-        //{
-        //    Random random = new Random();
-        //    for (int index = 0; 2 > index; ++index)
-        //    {
-        //        Entity entity = this.entityWorld.CreateEntityFromTemplate(EnemyShipTemplate.Name);
-        //        entity.GetComponent<TransformComponent>().X = random.Next(this.GraphicsDevice.Viewport.Width - 100) + 50;
-        //        entity.GetComponent<TransformComponent>().Y = random.Next((int)((this.GraphicsDevice.Viewport.Height * 0.75) + 0.5)) + 50;
-        //        entity.GetComponent<VelocityComponent>().Speed = 0.05f;
-        //        entity.GetComponent<VelocityComponent>().Angle = random.Next() % 2 == 0 ? 0 : 180;
-        //    }
-        //}
-
         /// <summary>The initialize player ship.</summary>
-        private void InitializePlayerShip()
+        private void InitializePlayer()
         {
             Entity entity = this.entityWorld.CreateEntity();
             entity.Group = "SNEKPC";
 
             entity.AddComponentFromPool<Texture2DComponent>();
-            entity.AddComponentFromPool<Vector2Component>();
             entity.AddComponentFromPool<VelocityComponent>();
             entity.AddComponentFromPool<KeyboardInputComponent>();
+            entity.AddComponentFromPool<SnakeHeadComponent>();
+            entity.AddComponentFromPool<SnakeBodyComponent>();
+            entity.AddComponentFromPool<SnakeTailComponent>();
 
             entity.GetComponent<Texture2DComponent>().Init(Content, "Images/whitesquare");
-            entity.GetComponent<Vector2Component>().Init(10, 10);
-            entity.GetComponent<VelocityComponent>().Init(16f, 0);
+            Velocity velocity = new Velocity();
+            velocity.Init(16f, 0);
+            entity.GetComponent<VelocityComponent>().Init(velocity, new Velocity());
             entity.GetComponent<KeyboardInputComponent>().Init(new KeyboardState(), new KeyboardState());
+            entity.GetComponent<SnakeBodyComponent>().Init(new Vector2(128, 128), Vector2.Zero, entity);
             entity.Tag = "SNEKPCHEAD";
         }
     }
